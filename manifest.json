@@ -1,0 +1,14 @@
+{
+  "name": "omni",
+  "version": "0.0.8",
+
+  "description": "it's like everywhere, bro",
+  "background_page": "background.html",
+
+  "content_scripts": [
+    {
+      "matches": ["http://*/*"],
+      "js": ["lib/jquery-1.7.1.min.js", "autorun.js"]
+    }
+  ]
+}
