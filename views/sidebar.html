@@ -18,7 +18,15 @@
         padding: 10px;
       }
       
-      input {
+      #sidebar a {
+        color: orange;
+      }
+      
+      #sidebar a:hover {
+        color: yellow;
+      }
+      
+      #sidebar input {
         width: 100%;
         height: 30px;
         font-size: 18px;
@@ -30,6 +38,19 @@
         -webkit-border-radius: 3px;
         -moz-border-radius: 3px;
         border-radius: 3px;
+      }
+      
+      #sidebar textarea {
+        font-size: 100%;
+        margin: 0;
+        vertical-align: baseline;
+        *vertical-align: middle;
+        width: 100%;
+        height: 500px;
+      }
+      
+      #url {
+        color: #38a;
       }
     </style>
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
@@ -83,9 +104,79 @@
       this is the content
     </div>
     <div id="sidebar">
-      <input type="text" id="enter" value="search"/>
+      <div id="search_container">
+        <input type="text" id="enter" value="search"/>
+        <a href="javascript:void(0)" id="cancel">cancel</a>
+      </div>
+      <div id="search_results">
+        <br/>
+        Search string: <span id="search_string"></span>
+        <br/>
+        <ul id="search_results_list">
+        </ul>
+      </div>
+      <div id="current_note">
+        URL: <span id="url">http://awef.com</span>
+        <br/>
+        Clip:
+        <textarea id="note_content">aweofaiwefhiwe</textarea>
+      </div>
     </div>
     <script type="text/javascript">
+      var data = ["item1", "item4", "item8"];
+      
+      var get_search_results = function(search_string) {
+        var return_list = [];
+        if(search_string == "") {
+          return return_list;
+        }
+        for(var i = 0; i < data.length; i++) {
+          if(data[i].indexOf(search_string) >= 0) {
+            return_list.push(data[i]);
+          }
+        }
+        return return_list;
+      }
+      
+      var show_results = function() {
+        $("#search_results").show();
+        $("#cancel").show();
+        
+        var search_string = $("#enter").val();
+        $("#search_string").html(search_string);
+        var results = get_search_results(search_string);
+        $("#search_results_list").html("");
+        for(var i = 0; i < results.length; i++) {
+          $("#search_results_list").append("<li><a href='javascript:void(0)'>" + results[i] + "<\/a><\/li>");
+        }
+      }
+      
+      var show_note = function() {
+        $("#current_note").show();
+      }
+      
+      var hide_note = function() {
+        $("#current_note").hide();
+      }
+      
+      var hide_results = function() {
+        $("#search_results").hide();
+        $("#cancel").hide();
+        $("#enter").val("search");
+        $("#enter").css("color", "#aaa");
+      }
+      
+      var toggle = function(note) {
+        if(note) {
+          show_note();
+          hide_results();
+        }
+        else {
+          hide_note();
+          show_results();
+        }
+      }
+      
       $("#enter").focus(function() {
         if($(this).val() == "search") {
           $(this).val("");
@@ -94,10 +185,17 @@
       });
       $("#enter").blur(function() {
         if($(this).val() == "") {
-          $(this).val("search");
-          $(this).css("color", "#aaa");
+          toggle(true);
         }
       });
+      $("#enter").keyup(function() {
+        toggle(false);
+      });
+      $("#cancel").click(function() {
+        toggle(true);
+      });
+      
+      hide_results();
     </script>
   </body>
 </html>
