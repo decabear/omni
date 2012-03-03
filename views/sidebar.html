@@ -1,0 +1,103 @@
+<html>
+  <head>
+    <style type="text/css">
+      #content {
+        
+      }
+      #sidebar {
+        border-left: 1px solid #000;
+        height: 100px;
+        width: 300px;
+        height: 100%;
+        position: fixed;
+        right: 0px;
+        top: 0px;
+        background-color: #444;
+        color: #fff;
+        font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+        padding: 10px;
+      }
+      
+      input {
+        width: 100%;
+        height: 30px;
+        font-size: 18px;
+        display: inline-block;
+        padding: 4px;
+        margin-bottom: 9px;
+        color: #aaa;
+        border: 1px solid #CCC;
+        -webkit-border-radius: 3px;
+        -moz-border-radius: 3px;
+        border-radius: 3px;
+      }
+    </style>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+  </head>
+  <body>
+    <div id="content">
+      this is the content this is the content this is the content this is the content this is the content this is the content this is the content this is the content this is the content this is the content this is the content this is the content this is the content this is the content this is the content this is the content this is the content
+      this is the content<br/>
+      this is the content<br/>
+      this is the content<br/>
+      this is the content<br/>
+      this is the content<br/>
+      this is the content<br/>
+      this is the content<br/>
+      this is the content<br/>
+      this is the content<br/>
+      this is the content<br/>
+      this is the content<br/>
+      this is the content<br/>
+      this is the content<br/>
+      this is the content<br/>
+      this is the content<br/>
+      this is the content<br/>
+      this is the content<br/>
+      this is the content<br/>
+      this is the content<br/>
+      this is the content<br/>
+      this is the content<br/>
+      this is the content<br/>
+      this is the content<br/>
+      this is the content<br/>
+      this is the content<br/>
+      this is the content<br/>
+      this is the content<br/>
+      this is the content<br/>
+      this is the content<br/>
+      this is the content<br/>
+      this is the content<br/>
+      this is the content<br/>
+      this is the content<br/>
+      this is the content<br/>
+      this is the content<br/>
+      this is the content<br/>
+      this is the content<br/>
+      this is the content<br/>
+      this is the content<br/>
+      this is the content<br/>
+      this is the content<br/>
+      this is the content<br/>
+      this is the content<br/>
+      this is the content
+    </div>
+    <div id="sidebar">
+      <input type="text" id="enter" value="search"/>
+    </div>
+    <script type="text/javascript">
+      $("#enter").focus(function() {
+        if($(this).val() == "search") {
+          $(this).val("");
+          $(this).css("color", "#333");
+        }
+      });
+      $("#enter").blur(function() {
+        if($(this).val() == "") {
+          $(this).val("search");
+          $(this).css("color", "#aaa");
+        }
+      });
+    </script>
+  </body>
+</html>
