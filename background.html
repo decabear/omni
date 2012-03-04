@@ -4,6 +4,8 @@
 <script src="lib/omni.js"></script>
 
 <script>
+  var GLOBAL_CURRENT_CONTEXT;
+
   //map of tabid => context id
   var tabmap = {};
 
@@ -17,30 +19,42 @@
 
     port.onMessage.addListener(function(msg){
       console.log('msg from client: ', msg);
-      tabmap[mostRecentTabId] = msg;
+      //tabmap[mostRecentTabId] = msg;
+      //if(!omni.Contexts.has(msg)) throw "context doesn't exist";
+      GLOBAL_CURRENT_CONTEXT = omni.Contexts.get(msg);
+      console.log('setting global current context to', GLOBAL_CURRENT_CONTEXT);
     });
   });
 
   var oldurl = '';
   chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
-    console.log('updated', arguments)
-
     var ctxTitle = tabmap[tabId],
         newurl = tab.url;
 
-    if(newurl == oldurl || !ctxTitle) return;
+    /*
+    console.log('---');
+    console.log('tabid', tabId);
+    console.log('active', mostRecentTabId);
+    console.log('ctxTitle', ctxTitle);
+    console.log('url', newurl);
+    console.log('---');
+    */
+
+    if(newurl == oldurl /* || !ctxTitle */) return;
     oldurl = newurl;
 
-    var context = omni.Contexts.get(ctxTitle);
+    //var context = omni.Contexts.get(ctxTitle);
+    var context = GLOBAL_CURRENT_CONTEXT;
+    if(!context) return;
 
-    if(_.find(context.urls, function(){ return newurl })) {
+    if(_.find(context.urls, function(url){ return url == newurl })) {
       console.log('url is already tracked. returning');
       return;
     }
 
     console.log('adding url', newurl, 'to context', context.title)
     context.urls.push(newurl)
-    context.save();
+    omni.Contexts.save();
   });
 
 </script>
