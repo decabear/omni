@@ -5,6 +5,10 @@
   "description": "it's like everywhere, bro",
   "background_page": "background.html",
 
+  "permissions": [
+    "tabs"
+  ],
+
   "content_scripts": [
     {
       "matches": ["http://*/*"],
