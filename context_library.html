@@ -201,7 +201,7 @@
         $(".context_result").unbind();
         for(var i = 0; i < contexts.length; i++) {
           var numNotes = contexts[i].notes.length;
-          var numUrls = 0; //contexts[i].history.length; //TODO
+          var numUrls = contexts[i].urls.length; //TODO: url
           var img_src = "http://placekitten.com/60/60";
           var item_html = "<div class='context_result' ctitle='" + contexts[i].title + "'>";
           item_html +=  '<img class="item_icon" src="' + img_src + '" \/>';
@@ -223,13 +223,12 @@
       var set_context = function(ctx) {
         var port = chrome.extension.connect();
         chrome.tabs.getCurrent(function(tab){
-          port.postMessage(ctx);
+          port.postMessage({context: ctx});
         });
       }
       
       var load_context = function() {
         switch_level(1);
-        //TODO: set seleced browser-wide context to this context
         var ctitle = $(this).attr("ctitle");
         set_context(ctitle);
         var context = omni.Contexts.get(ctitle);
@@ -238,7 +237,7 @@
         $("#enter").val("");
         //$("#context_date").html(context.date_modified);
         var numNotes = context.notes.length;
-        var numUrls = 0; //TODO contexts[i].history.length;
+        var numUrls = context.urls.length; //TODO url
         for(var j = 0; j < numNotes; j++) {
           var item_html = "<div class='context_note_link_container'>";
           item_html += "<a href='javascript:void(0)' class='context_note_link' noteindex='" + j + "'>"
@@ -248,7 +247,7 @@
         }
         for(var j = 0; j < numUrls; j++) {
           var item_html = "<div class='context_history_link'>";
-          item_html += "<a target='_blank' href='" + contexts[i].history[j].url + "'>"
+          item_html += "<a target='_blank' href='" + context.urls[j].url + "'>"
           item_html += context.urls[j].title;
           item_html += "<\/a><\/div>";
           $("#context_history").append(item_html);
@@ -273,7 +272,7 @@
         $("#enter").val("");
         //$("#context_date").html(context.date_modified);
         var numNotes = context.notes.length;
-        var numUrls = 0; //TODO contexts[i].history.length;
+        var numUrls = context.urls.length;
         for(var j = 0; j < numNotes; j++) {
           var item_html = "<div class='context_note_link_container'>";
           item_html += "<a href='javascript:void(0)' class='context_note_link' noteindex='" + j + "'>"
@@ -283,7 +282,7 @@
         }
         for(var j = 0; j < numUrls; j++) {
           var item_html = "<div class='context_history_link'>";
-          item_html += "<a target='_blank' href='" + contexts[i].history[j].url + "'>"
+          item_html += "<a target='_blank' href='" + context.urls[j].url + "'>"
           item_html += context.urls[j].title;
           item_html += "<\/a><\/div>";
           $("#context_history").append(item_html);
