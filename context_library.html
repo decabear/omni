@@ -178,7 +178,13 @@
       }
 
       var init = function() {
-        current_context = "whales";
+        current_context = localStorage["GLOBAL_CURRENT_CONTEXT"];
+        if(!current_context) {
+          render_results("");
+        }
+        else {
+          load_context_default(current_context);
+        }
       };
       
       var query_match = function(query, text) {
@@ -214,40 +220,83 @@
         $(".context_result").click(load_context);
       };
       
+      var set_context = function(ctx) {
+        var port = chrome.extension.connect();
+        chrome.tabs.getCurrent(function(tab){
+          port.postMessage(ctx);
+        });
+      }
+      
       var load_context = function() {
-          switch_level(1);
-          //TODO: set seleced browser-wide context to this context
-          var ctitle = $(this).attr("ctitle");
-          var context = omni.Contexts.get(ctitle);
-          $("#context_title").html(context.title);
-          $("#context_container").attr("ctitle", context.title);
-          $("#enter").val("");
-          //$("#context_date").html(context.date_modified);
-          var numNotes = context.notes.length;
-          var numUrls = 0; //TODO contexts[i].history.length;
-          for(var j = 0; j < numNotes; j++) {
-            var item_html = "<div class='context_note_link_container'>";
-            item_html += "<a href='javascript:void(0)' class='context_note_link' noteindex='" + j + "'>"
-            item_html += context.notes[j].title;
-            item_html += "<\/a><\/div>";
-            $("#context_notes").append(item_html);
-          }
-          for(var j = 0; j < numUrls; j++) {
-            var item_html = "<div class='context_history_link'>";
-            item_html += "<a target='_blank' href='" + contexts[i].history[j].url + "'>"
-            item_html += context.urls[j].title;
-            item_html += "<\/a><\/div>";
-            $("#context_history").append(item_html);
-          }
-          $(".context_note_link").click(function() {
-            var note_index = parseInt($(this).attr("noteindex"));
-            var ctitle = $("#context_container").attr("ctitle");
-            $("#context_note").attr("noteindex", note_index);
-            var msg = context.notes[note_index].text;
-            $("#context_note_title").html(context.notes[note_index].title);
-            $("#context_note").val(msg);
-            $("#context_right").show();
-          });
+        switch_level(1);
+        //TODO: set seleced browser-wide context to this context
+        var ctitle = $(this).attr("ctitle");
+        set_context(ctitle);
+        var context = omni.Contexts.get(ctitle);
+        $("#context_title").html(context.title);
+        $("#context_container").attr("ctitle", context.title);
+        $("#enter").val("");
+        //$("#context_date").html(context.date_modified);
+        var numNotes = context.notes.length;
+        var numUrls = 0; //TODO contexts[i].history.length;
+        for(var j = 0; j < numNotes; j++) {
+          var item_html = "<div class='context_note_link_container'>";
+          item_html += "<a href='javascript:void(0)' class='context_note_link' noteindex='" + j + "'>"
+          item_html += context.notes[j].title;
+          item_html += "<\/a><\/div>";
+          $("#context_notes").append(item_html);
+        }
+        for(var j = 0; j < numUrls; j++) {
+          var item_html = "<div class='context_history_link'>";
+          item_html += "<a target='_blank' href='" + contexts[i].history[j].url + "'>"
+          item_html += context.urls[j].title;
+          item_html += "<\/a><\/div>";
+          $("#context_history").append(item_html);
+        }
+        $(".context_note_link").click(function() {
+          var note_index = parseInt($(this).attr("noteindex"));
+          var ctitle = $("#context_container").attr("ctitle");
+          $("#context_note").attr("noteindex", note_index);
+          var msg = context.notes[note_index].text;
+          $("#context_note_title").html(context.notes[note_index].title);
+          $("#context_note").val(msg);
+          $("#context_right").show();
+        });
+      };
+      
+      var load_context_default = function(ctitle) {
+        switch_level(1);
+        //TODO: set seleced browser-wide context to this context
+        var context = omni.Contexts.get(ctitle);
+        $("#context_title").html(context.title);
+        $("#context_container").attr("ctitle", context.title);
+        $("#enter").val("");
+        //$("#context_date").html(context.date_modified);
+        var numNotes = context.notes.length;
+        var numUrls = 0; //TODO contexts[i].history.length;
+        for(var j = 0; j < numNotes; j++) {
+          var item_html = "<div class='context_note_link_container'>";
+          item_html += "<a href='javascript:void(0)' class='context_note_link' noteindex='" + j + "'>"
+          item_html += context.notes[j].title;
+          item_html += "<\/a><\/div>";
+          $("#context_notes").append(item_html);
+        }
+        for(var j = 0; j < numUrls; j++) {
+          var item_html = "<div class='context_history_link'>";
+          item_html += "<a target='_blank' href='" + contexts[i].history[j].url + "'>"
+          item_html += context.urls[j].title;
+          item_html += "<\/a><\/div>";
+          $("#context_history").append(item_html);
+        }
+        $(".context_note_link").click(function() {
+          var note_index = parseInt($(this).attr("noteindex"));
+          var ctitle = $("#context_container").attr("ctitle");
+          $("#context_note").attr("noteindex", note_index);
+          var msg = context.notes[note_index].text;
+          $("#context_note_title").html(context.notes[note_index].title);
+          $("#context_note").val(msg);
+          $("#context_right").show();
+        });
       };
       
       $("#enter").keyup(function(e) {
@@ -303,10 +352,10 @@
       
       $("#close_context").click(function() {
         switch_level(0);
+        set_context(undefined);
       });
       
       init();
-      render_results("");
     </script>
   </body>
 </html>
