@@ -17,14 +17,21 @@
     mostRecentTabId = tabid;
   });
 
+  var mostRecentLoadData;
   chrome.extension.onConnect.addListener(function(port){
     console.log('connection made!!!');
 
     port.onMessage.addListener(function(msg){
-      console.log('msg from client: ', msg);
-      //tabmap[mostRecentTabId] = msg;
-      //if(!omni.Contexts.has(msg)) throw "context doesn't exist";
-      localStorage['GLOBAL_CURRENT_CONTEXT'] = msg;
+
+      if(msg.innerText && msg.title) {
+        console.log('setting most recent load data to', msg);
+        mostRecentLoadData = msg;
+      } else {
+        console.log('msg from client: ', msg);
+        //tabmap[mostRecentTabId] = msg;
+        //if(!omni.Contexts.has(msg)) throw "context doesn't exist";
+        localStorage['GLOBAL_CURRENT_CONTEXT'] = msg.context;
+      }
     });
   });
 
@@ -57,7 +64,7 @@
     }
 
     console.log('adding url', newurl, 'to context', context.title)
-    context.urls.push(newurl)
+    context.urls.push(mostRecentLoadData)
     omni.Contexts.save();
   });
 
