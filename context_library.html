@@ -56,6 +56,18 @@
         font-weight: light;
         color: #ddd;
       }
+      
+      #context_container {
+        min-width: 800px;
+      }
+      
+      #context_left {
+        width: 300px;
+      }
+      
+      #context_right {
+        width: 500px;
+      }
     </style>
     
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
@@ -100,12 +112,18 @@
             <div id="context_date"></div>
             <a id="close_context" href="javascript:void(0)" class="btn" >close this context</a>
             <br/>
-            Notes:
-            <div id="context_notes">
+            <hr/>
+            <div id="context_left">
+              Notes:
+              <div id="context_notes">
+              </div>
+              History:
+              <div id="context_history">
+              </div>
             </div>
-            History:
-            <div id="context_history">
+            <div id="context_right">
             </div>
+            <div style="clear:both"></div>
           </div>
         </div>
       </div>
@@ -120,6 +138,7 @@
         if(level == 0) {
           $("#context_container").hide();
           $(".hero-unit h1").html("Search for a context: ");
+          $("#enter").val("");
           render_results("");
           $(".exit_context").unbind();
         }
@@ -200,12 +219,13 @@
           switch_level(1);
           var i = parseInt($(this).attr("cindex"));
           $("#context_title").html(contexts[i].title);
+          $("#enter").val("");
           $("#context_date").html(contexts[i].date_modified);
           var numNotes = contexts[i].notes.length;
           var numUrls = contexts[i].history.length;
           for(var j = 0; j < numNotes; j++) {
-            var item_html = "<div class='context_note_link'>";
-            item_html += "<a href='javascript:void(0)'>"
+            var item_html = "<div class='context_note_link_container'>";
+            item_html += "<a href='javascript:void(0)' class='context_note_link' noteindex='" + j + "'>"
             item_html += contexts[i].notes[j].title;
             item_html += "<\/a><\/div>";
             $("#context_notes").append(item_html);
@@ -216,8 +236,10 @@
             item_html += contexts[i].history[j].title;
             item_html += "<\/a><\/div>";
             $("#context_history").append(item_html);
-            
           }
+          $(".context_note_link").click(function() {
+            $("#context_right").html("adsf");
+          });
         });
       };
       
