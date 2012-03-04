@@ -28,13 +28,8 @@
     var ctxTitle = tabmap[tabId],
         newurl = tab.url;
 
-    if(newurl == oldurl) return;
+    if(newurl == oldurl || !ctxTitle) return;
     oldurl = newurl;
-
-    if(!omni.Contexts.has(ctxTitle)) {
-      console.log('no context is set for the current title');
-      return;
-    }
 
     var context = omni.Contexts.get(ctxTitle);
 
