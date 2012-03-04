@@ -58,7 +58,7 @@
 
     var context = omni.Contexts.get(contextName);
 
-    if(_.find(context.urls, function(url){ return url == newurl })) {
+    if(_.find(context.urls, function(url){ return url.url == newurl })) {
       console.log('url is already tracked. returning');
       return;
     }
