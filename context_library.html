@@ -281,11 +281,13 @@
           $("#context_notes").append(item_html);
         }
         for(var j = 0; j < numUrls; j++) {
-          var item_html = "<div class='context_history_link'>";
-          item_html += "<a target='_blank' href='" + context.urls[j].url + "'>"
-          item_html += context.urls[j].title;
-          item_html += "<\/a><\/div>";
-          $("#context_history").append(item_html);
+          if(context.urls[j] != null) {
+            var item_html = "<div class='context_history_link'>";
+            item_html += "<a target='_blank' href='" + context.urls[j].url + "'>"
+            item_html += context.urls[j].title;
+            item_html += "<\/a><\/div>";
+            $("#context_history").append(item_html);
+          }
         }
         $(".context_note_link").click(function() {
           var note_index = parseInt($(this).attr("noteindex"));
