@@ -63,6 +63,11 @@
       return;
     }
 
+    if(!mostRecentLoadData) {
+      console.log('most recent load data hasnt been written, dawg');
+      return;
+    }
+
     console.log('adding url', newurl, 'to context', context.title)
     context.urls.push(mostRecentLoadData)
     omni.Contexts.save();
