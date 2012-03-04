@@ -95,6 +95,18 @@
         <div class="span16">
           <div id="results">
           </div>
+          <div id="context_container" style="display:none">
+            <h3 id="context_title">title</h3>
+            <div id="context_date"></div>
+            <a id="close_context" href="javascript:void(0)" class="btn" >close this context</a>
+            <br/>
+            Notes:
+            <div id="context_notes">
+            </div>
+            History:
+            <div id="context_history">
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -106,14 +118,21 @@
         level = new_lvl;
         $("#results").html("");
         if(level == 0) {
+          $("#context_container").hide();
           $(".hero-unit h1").html("Search for a context: ");
           render_results("");
+          $(".exit_context").unbind();
         }
         else if(level == 1) {
+          $("#context_container").show();
           $(".hero-unit h1").html("Search for a note or URL: ");
           $(".exit_context").click(function() {
             switch_level(0);
           });
+          $("#context_title").html("");
+          $("#context_notes").html("");
+          $("#context_history").html("");
+          $("#context_date").html("");
         }
       }
 
@@ -150,6 +169,10 @@
         return (query == "" || text.toLowerCase().indexOf(query.toLowerCase()) >= 0);
       }
       
+      var render_context = function(index) {
+        
+      }
+      
       var render_results = function(query) {
         $("#results").html("");
         $(".context_result").unbind();
@@ -174,8 +197,27 @@
           }
         }
         $(".context_result").click(function() {
-          var index = parseInt($(this).attr("cindex"));
           switch_level(1);
+          var i = parseInt($(this).attr("cindex"));
+          $("#context_title").html(contexts[i].title);
+          $("#context_date").html(contexts[i].date_modified);
+          var numNotes = contexts[i].notes.length;
+          var numUrls = contexts[i].history.length;
+          for(var j = 0; j < numNotes; j++) {
+            var item_html = "<div class='context_note_link'>";
+            item_html += "<a href='javascript:void(0)'>"
+            item_html += contexts[i].notes[j].title;
+            item_html += "<\/a><\/div>";
+            $("#context_notes").append(item_html);
+          }
+          for(var j = 0; j < numUrls; j++) {
+            var item_html = "<div class='context_note_link'>";
+            item_html += "<a href='" + contexts[i].history[j].url + "'>"
+            item_html += contexts[i].history[j].title;
+            item_html += "<\/a><\/div>";
+            $("#context_history").append(item_html);
+            
+          }
         });
       };
       
@@ -183,6 +225,10 @@
         if(level == 0) {
           render_results($(this).val());
         }
+      });
+      
+      $("#close_context").click(function() {
+        switch_level(0);
       });
       
       init();
