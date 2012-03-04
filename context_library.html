@@ -124,6 +124,7 @@
           <div id="context_container" style="display:none">
             <h3 id="context_title">title</h3>
             <div style="display:none">Created <span id="context_date"></span>&nbsp;&nbsp;</div>
+            This context is currently active
             <a id="close_context" href="javascript:void(0)" class="btn" >close this context</a>
             <br/>
             <hr/>
@@ -245,12 +246,16 @@
           item_html += "<\/a><\/div>";
           $("#context_notes").append(item_html);
         }
+        var seenUrls = [];
         for(var j = 0; j < numUrls; j++) {
-          var item_html = "<div class='context_history_link'>";
-          item_html += "<a target='_blank' href='" + context.urls[j].url + "'>"
-          item_html += context.urls[j].title;
-          item_html += "<\/a><\/div>";
-          $("#context_history").append(item_html);
+          if(seenUrls.indexOf(context.urls[j].title) < 0) {
+            var item_html = "<div class='context_history_link'>";
+            item_html += "<a target='_blank' href='" + context.urls[j].url + "'>"
+            item_html += context.urls[j].title;
+            item_html += "<\/a><\/div>";
+            $("#context_history").append(item_html);
+            seenUrls.push(context.urls[j].title);
+          }
         }
         $(".context_note_link").click(function() {
           var note_index = parseInt($(this).attr("noteindex"));
@@ -280,13 +285,17 @@
           item_html += "<\/a><\/div>";
           $("#context_notes").append(item_html);
         }
+        var seenUrls = [];
         for(var j = 0; j < numUrls; j++) {
           if(context.urls[j] != null) {
-            var item_html = "<div class='context_history_link'>";
-            item_html += "<a target='_blank' href='" + context.urls[j].url + "'>"
-            item_html += context.urls[j].title;
-            item_html += "<\/a><\/div>";
-            $("#context_history").append(item_html);
+            if(seenUrls.indexOf(context.urls[j].title) < 0) {
+              var item_html = "<div class='context_history_link'>";
+              item_html += "<a target='_blank' href='" + context.urls[j].url + "'>"
+              item_html += context.urls[j].title;
+              item_html += "<\/a><\/div>";
+              $("#context_history").append(item_html);
+              seenUrls.push(context.urls[j].title);
+            }
           }
         }
         $(".context_note_link").click(function() {
@@ -353,7 +362,7 @@
       
       $("#close_context").click(function() {
         switch_level(0);
-        set_context(undefined);
+        set_context("");
       });
       
       init();
