@@ -1,11 +1,14 @@
 <html><head></head>
 <body>
 <script src="lib/underscore-1.3.1.min.js"></script>
+
+<script>
+  delete localStorage['GLOBAL_CURRENT_CONTEXT']
+</script>
+
 <script src="lib/omni.js"></script>
 
 <script>
-  var GLOBAL_CURRENT_CONTEXT;
-
   //map of tabid => context id
   var tabmap = {};
 
@@ -21,8 +24,7 @@
       console.log('msg from client: ', msg);
       //tabmap[mostRecentTabId] = msg;
       //if(!omni.Contexts.has(msg)) throw "context doesn't exist";
-      GLOBAL_CURRENT_CONTEXT = omni.Contexts.get(msg);
-      console.log('setting global current context to', GLOBAL_CURRENT_CONTEXT);
+      localStorage['GLOBAL_CURRENT_CONTEXT'] = msg;
     });
   });
 
@@ -44,8 +46,10 @@
     oldurl = newurl;
 
     //var context = omni.Contexts.get(ctxTitle);
-    var context = GLOBAL_CURRENT_CONTEXT;
-    if(!context) return;
+    var contextName = localStorage['GLOBAL_CURRENT_CONTEXT'];
+    if(!contextName) return;
+
+    var context = omni.Contexts.get(contextName);
 
     if(_.find(context.urls, function(url){ return url == newurl })) {
       console.log('url is already tracked. returning');
