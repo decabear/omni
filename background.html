@@ -7,18 +7,24 @@
   //map of tabid => context id
   var tabmap = {};
 
+  var mostRecentTabId;
+  chrome.tabs.onActiveChanged.addListener(function(tabid, selectinfo){
+    mostRecentTabId = tabid;
+  });
+
   chrome.extension.onConnect.addListener(function(port){
+    console.log('connection made!!!');
+
     port.onMessage.addListener(function(msg){
       console.log('msg from client: ', msg);
-      if(!msg.type || !msg.tabid) throw "invalid message";
-
-      tabmap[msg.tabid] = msg.contextId;
-      console.log('context', msg.contextId, 'is now paired with tab', msg.tabid);
+      tabmap[mostRecentTabId] = msg;
     });
   });
 
   var oldurl = '';
   chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
+    console.log('updated', arguments)
+
     var ctxTitle = tabmap[tabId],
         newurl = tab.url;
 

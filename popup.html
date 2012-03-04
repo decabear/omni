@@ -1,5 +1,12 @@
 <html>
   <head>
+    <script>
+      var port = chrome.extension.connect();
+      chrome.tabs.getCurrent(function(tab){
+        //port.postMessage("keegan is awesome");
+      });
+
+    </script>
     <style type="text/css">
       body {
         overflow: hidden;
