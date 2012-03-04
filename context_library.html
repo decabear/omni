@@ -1,6 +1,192 @@
 <html>
-<head></head>
-<body>
-  this be where your contexts live, brah
-</body>
+<head>
+    <link href="http://twitter.github.com/bootstrap/assets/css/bootstrap.css" rel="stylesheet">
+    <link href="http://twitter.github.com/bootstrap/assets/css/bootstrap-responsive.css" rel="stylesheet">
+    <style type="text/css">
+      body {
+        padding-top: 60px;
+        padding-bottom: 40px;
+      }
+      
+      .hero-unit {
+        padding: 10px 30px 5px 30px;
+        text-align: center;
+        background-color: #444;
+      }
+      
+      .hero-unit h1 {
+        text-transform: uppercase;
+        font-size: 44px;
+        color: #fff;
+      }
+      
+      #enter {
+        width: 100%;
+        height: 40px;
+        font-size: 30px;
+      }
+      
+      .context_result {
+        background-color: #ccc;
+        margin-bottom: 5px;
+        padding: 10px;
+      }
+      
+      .context_result:hover {
+        background-color: #ddd;
+      }
+      
+      .item_icon {
+        float: left;
+        width: 60px;
+        margin-right: 6px;
+      }
+      
+      .content_result_right {
+        float: left;
+        width: 300px;
+      }
+      
+      .context_result_title {
+        font-weight: bold;
+        font-size: 18px;
+      }
+      
+      .item_description {
+        font-weight: light;
+        color: #ddd;
+      }
+    </style>
+    
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script type="text/javascript" src="http://twitter.github.com/bootstrap/assets/js/bootstrap-typeahead.js"></script>
+  </head>
+  <body>
+    <div class="navbar navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container">
+          <a href="javascript:void(0)" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </a>
+          <a class="brand" href="http://localhost/inst/">Omni: Context Browser</a>
+          <div class="nav-collapse">
+            <ul class="nav">
+              <!--
+              <li class="active"><a href="#">Home</a></li>
+              <li><a href="#about">About</a></li>
+              <li><a href="#contact">Contact</a></li>
+              -->
+            </ul>
+          </div><!--/.nav-collapse -->
+        </div>
+      </div>
+    </div>
+    
+    <div class="container">
+      <!-- Main hero unit for a primary marketing message or call to action -->
+      <div class="hero-unit">
+        <h1>Search for a context:</h1>
+        <br/>
+        <p><input type="text" id="enter" /></p>
+      </div>
+      <div class="row">
+        <div class="span16">
+          <div id="results">
+          </div>
+        </div>
+      </div>
+    </div>
+    <script type="text/javascript">
+      var contexts = [];
+      var level = 0;
+      
+      var switch_level = function(new_lvl) {
+        level = new_lvl;
+        $("#results").html("");
+        if(level == 0) {
+          $(".hero-unit h1").html("Search for a context: ");
+          render_results("");
+        }
+        else if(level == 1) {
+          $(".hero-unit h1").html("Search for a note or URL: ");
+          $(".exit_context").click(function() {
+            switch_level(0);
+          });
+        }
+      }
+
+      var init = function() {
+        var c1 = {};
+        c1.title = "CS 124 Assignment 1";
+        c1.date_modified = "02/29/12";
+        c1.notes = [];
+        c1.notes.push({title: "Note 1", text: "this is the text for note 1"});
+        c1.notes.push({title: "Genericness", text: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem"});
+        c1.notes.push({title: "Homework awesome", text: "Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old"});
+        c1.history = [];
+        c1.history.push({title: "Evans page", url: "http://stanford.edu/~emrosen/", inner_text: " Page for more info; below is th"});
+        c1.history.push({title: "From Languages to Information", url: "http://www.stanford.edu/class/cs124/courseinfo.html", inner_text: " the lectures and homeworks will be the same "});
+        c1.history.push({title: "class site", url: "http://www.stanford.edu/class/cs124/", inner_text: "deo, and you can watch them at home. The weekly review exercises and the (Java or Python) programming homeworks will be automatically uploaded and g"});
+
+        var c2 = {};
+        c2.title = "Research on Whales";
+        c2.date_modified = "03/01/12";
+        c2.notes = [];
+        c2.notes.push({title: "googlebot", text: "Whales are large aquatic mammals that breathe air through blowhole(s) into lungs (unlike fish which breathe using gills). They live their entire lives in water"});
+        c2.notes.push({title: "big juice", text: "t whale species, their life cycles, family structure and more - Whales."});
+        c2.notes.push({title: "whale stuff", text: "Whale is the common name for various marine mammals of the order Cetacea. The term whale sometimes refers to all cetaceans"});
+        c2.history = [];
+        c2.history.push({title: "site1", url: "http://www.google.com/url?sa=t&rct=j&q=&esrc=s&source=web&cd=1&cts=1330828299453&ved=0CEMQFjAA&url=http%3A%2F%2Fen.wikipedia.org%2Fwiki%2FWhale&ei=wtNST--_NOPZiQKezJy0Bg&usg=AFQjCNE_bK7KzBngGfkyF68OzlVvMA4Otg&sig2=PH-sZB1zz99tiBia5qEJRA", inner_text: "iefh wauiehf wauef"});
+        c2.history.push({title: "while 2", url: "http://www.enchantedlearning.com/subjects/whales/", inner_text: " migration of any mammal, the California gray whale (Eschrichtius robustus) swims 16,000 kilometers (10,000 miles) each year, spending about one third of its life migrating from the cold, nutrient-"});
+        c2.history.push({title: "whlae 3 NPS", url: "http://www.nps.gov/pore/planyourvisit/wildlife_viewing_whales.htm", inner_text: "Click on the following links to find out more about viewing opportunities for these species and to learn about their habitats and behaviors:"});
+        
+        contexts.push(c1);
+        contexts.push(c2);
+      };
+      
+      var query_match = function(query, text) {
+        return (query == "" || text.toLowerCase().indexOf(query.toLowerCase()) >= 0);
+      }
+      
+      var render_results = function(query) {
+        $("#results").html("");
+        $(".context_result").unbind();
+        for(var i = 0; i < contexts.length; i++) {
+          if(query_match(query, contexts[i].title)) {
+            var numNotes = contexts[i].notes.length;
+            var numUrls = contexts[i].history.length;
+            var img_src = "http://placekitten.com/60/60";
+            var item_html = "<div class='context_result' cindex='" + i + "'>";
+            item_html +=  '<img class="item_icon" src="' + img_src + '" \/>';
+            item_html +=  '<div class="content_result_right">';
+            item_html += "<div class='context_result_title'>" + contexts[i].title + "<\/div>";
+            item_html += "<div class='context_result_text'>"
+                           + contexts[i].date_modified + "<br>" 
+                           + numNotes + " notes, "
+                           + numUrls + " history items"
+                           + "<\/div>";
+            item_html += "<\/div>";
+            item_html += '<div style="clear:both"><\/div>';
+            item_html += "<\/div>";
+            $("#results").append(item_html);
+          }
+        }
+        $(".context_result").click(function() {
+          var index = parseInt($(this).attr("cindex"));
+          switch_level(1);
+        });
+      };
+      
+      $("#enter").keyup(function() {
+        if(level == 0) {
+          render_results($(this).val());
+        }
+      });
+      
+      init();
+      render_results("");
+    </script>
+  </body>
 </html>

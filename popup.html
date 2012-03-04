@@ -103,6 +103,7 @@
       <div id="search_container">
         <input type="text" id="enter" value="search" data-provide="typeahead"/>
         <a href="javascript:void(0)" id="cancel">cancel</a>
+        <ul id="tag_list"></ul>
       </div>
       <div id="search_results">
         <br/>
@@ -125,6 +126,9 @@
       var note_tags = [[0, 1], [0], [1, 2], [1, 2]];
       var notes = [];
       
+      //state
+      var current_tags = [];
+      
       var init = function() {
         for(var i = 0; i < note_titles.length; i++) {
           notes[note_titles[i]] = "random: " + Math.random();
@@ -136,6 +140,7 @@
         var tokens = search_string.split(" ");
         var results = {};
         results.tag_list = [];
+        results.keywords = [];
         results.query = "";
         for(var i = 0; i < tokens.length; i++) {
           var tag_index = tags.indexOf(tokens[i]);
@@ -144,15 +149,16 @@
           }
           else {
             results.query += tokens[i] + " ";
+            results.keywords.push(tokens[i]);
           }
         }
         results.query = $.trim(results.query);
         return results;
       }
       
-      var get_search_results = function(search_tags, search_string) {
+      var get_search_results = function(search_tags, search_keywords) {
         var return_list = [];
-        if(search_string == "" && search_tags.length == 0) {
+        if(search_keywords.length == 0 && search_tags.length == 0) {
           return return_list;
         }
         for(var i = 0; i < note_tags.length; i++) {
@@ -163,9 +169,27 @@
               break;
             }
           }
-          if(tags_match && (search_string.length == 0 || 
-              note_titles[i].indexOf(search_string) >= 0)) {
-            return_list.push(note_titles[i]);
+          if(tags_match) {
+            if(search_keywords.length == 0) {
+              return_list.push(note_titles[i]);
+            }
+            else {
+              var key_match = true;
+              for(var j = 0; j < search_keywords.length; j++) {
+                var str = search_keywords[j];
+                if(note_titles[i].indexOf(str) >= 0
+                  || notes[note_titles[i]].indexOf(str) >= 0) {
+                  
+                }
+                else {
+                  key_match = false;
+                  break;
+                }
+              }
+              if(key_match) {
+                return_list.push(note_titles[i]);
+              }
+            }
           }
         }
         return return_list;
@@ -176,6 +200,14 @@
         $("#note_content").val(notes[keyword]);
       };
       
+      var update_tags = function() {
+        $("#tag_list").html("");
+        for(var i = 0; i < current_tags.length; i++) {
+          $("#tag_list").append("<li><a href='javascript:void(0)' class='remove_tag' tag='" + current_tags[i] + "'>[x]<\/a> " +
+              tags[current_tags[i]] + "<\/li>");
+        }
+      }
+      
       var show_results = function() {
         $("#search_results").show();
         $("#cancel").show();
@@ -183,7 +215,12 @@
         var search_string = $("#enter").val();
         $("#search_string").html(search_string);
         var tag_parse = parse_tags(search_string);
-        var results = get_search_results(tag_parse.tag_list, tag_parse.query);
+        current_tags = current_tags.concat(tag_parse.tag_list);
+        if(search_string.substring(search_string.length - 1) == " ") {
+          tag_parse.query += " ";
+        }
+        $("#enter").val(tag_parse.query);
+        var results = get_search_results(current_tags, tag_parse.keywords);
         $("#search_results_list").html("");
         $(".search_list_item").unbind();
         for(var i = 0; i < results.length; i++) {
@@ -200,12 +237,7 @@
           item_html += '<div class="item_content"><div class="item_title">' + item_title + '<\/div>';
           item_html += '<div class="item_description">' + item_desc + '<\/div>';
           item_html += '<\/div><div style="clear:both"><\/div><\/div>';
-/*
-          var item_link = "<a href='javascript:void(0)' "
-                           + "class='item_link' "
-                           + "termtitle='" + results[i] + "'"
-                           + ">" + results[i] + "<\/a>";
-*/
+          
           $("#search_results_list").append(item_html);
         }
         $(".search_list_item").click(function() {
@@ -223,6 +255,8 @@
       };
       
       var hide_results = function() {
+        $("#tag_list").html("");
+        current_tags = [];
         $("#search_results").hide();
         $("#cancel").hide();
         $("#enter").val("search");
@@ -237,6 +271,7 @@
         else {
           hide_note();
           show_results();
+          update_tags();
         }
       };
       
@@ -253,7 +288,14 @@
         }
       });
       
-      $("#enter").keyup(function() {
+      $("#enter").keyup(function(e) {
+        /*
+        if(e.keyCode == 13) {
+          var results = parse_tags($(this).val());
+          current_tags = current_tags.concat(results.tag_list);
+          $(this).val(results.query);
+        }
+        */
         toggle(false);
       });
       
