@@ -1,10 +1,20 @@
 <html>
   <head>
     <style type="text/css">
-      #content {
-        
+      body {
+        overflow: hidden;
+        padding: 0px;
+        color: #fff;
+        font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
       }
+      
+      .spacer {
+        color: transparent;
+        font-size: 8px;
+      }
+      
       #sidebar {
+        /*
         border-left: 1px solid #000;
         height: 100px;
         width: 300px;
@@ -12,18 +22,20 @@
         position: fixed;
         right: 0px;
         top: 0px;
+        */
+        margin-top: 10px;
+        width: 400px;
+        min-height: 800px;
         background-color: #444;
-        color: #fff;
-        font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
         padding: 10px;
       }
       
       #sidebar a {
-        color: orange;
+        color: #4af;
       }
       
       #sidebar a:hover {
-        color: yellow;
+        color: #6df;
       }
       
       #sidebar input {
@@ -48,61 +60,10 @@
         width: 100%;
         height: 500px;
       }
-      
-      #url {
-        color: #38a;
-      }
     </style>
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
   </head>
   <body>
-    <div id="content">
-      this is the content this is the content this is the content this is the content this is the content this is the content this is the content this is the content this is the content this is the content this is the content this is the content this is the content this is the content this is the content this is the content this is the content
-      this is the content<br/>
-      this is the content<br/>
-      this is the content<br/>
-      this is the content<br/>
-      this is the content<br/>
-      this is the content<br/>
-      this is the content<br/>
-      this is the content<br/>
-      this is the content<br/>
-      this is the content<br/>
-      this is the content<br/>
-      this is the content<br/>
-      this is the content<br/>
-      this is the content<br/>
-      this is the content<br/>
-      this is the content<br/>
-      this is the content<br/>
-      this is the content<br/>
-      this is the content<br/>
-      this is the content<br/>
-      this is the content<br/>
-      this is the content<br/>
-      this is the content<br/>
-      this is the content<br/>
-      this is the content<br/>
-      this is the content<br/>
-      this is the content<br/>
-      this is the content<br/>
-      this is the content<br/>
-      this is the content<br/>
-      this is the content<br/>
-      this is the content<br/>
-      this is the content<br/>
-      this is the content<br/>
-      this is the content<br/>
-      this is the content<br/>
-      this is the content<br/>
-      this is the content<br/>
-      this is the content<br/>
-      this is the content<br/>
-      this is the content<br/>
-      this is the content<br/>
-      this is the content<br/>
-      this is the content
-    </div>
     <div id="sidebar">
       <div id="search_container">
         <input type="text" id="enter" value="search"/>
@@ -112,31 +73,50 @@
         <br/>
         Search string: <span id="search_string"></span>
         <br/>
+        <div>
+          asdf
+        </div>
         <ul id="search_results_list">
         </ul>
       </div>
       <div id="current_note">
-        URL: <span id="url">http://awef.com</span>
+        URL: <a id="url" href="http://google.com">TODO</a>
+        <br/>
+        Title: <span id="note_title"></span>
         <br/>
         Clip:
         <textarea id="note_content">aweofaiwefhiwe</textarea>
       </div>
     </div>
     <script type="text/javascript">
-      var data = ["item1", "item4", "item8"];
+      var note_titles = ["item1", "item4", "item8"];
+      var notes = [];
+      
+      var init = function() {
+        for(var i = 0; i < note_titles.length; i++) {
+          notes[note_titles[i]] = note_titles[i] + " aowiejfiawefj " + Math.random();
+        }
+      };
+      init();
       
       var get_search_results = function(search_string) {
         var return_list = [];
         if(search_string == "") {
           return return_list;
         }
-        for(var i = 0; i < data.length; i++) {
-          if(data[i].indexOf(search_string) >= 0) {
-            return_list.push(data[i]);
+        for(var i = 0; i < note_titles.length; i++) {
+          if(note_titles[i].indexOf(search_string) >= 0) {
+            return_list.push(note_titles[i]);
           }
         }
         return return_list;
-      }
+      };
+      
+      var load_note = function(keyword) {
+        $("#note_title").html(keyword);
+        $("#note_content").val(notes[keyword]);
+        //$("#note_content").val("loaded");
+      };
       
       var show_results = function() {
         $("#search_results").show();
@@ -146,25 +126,34 @@
         $("#search_string").html(search_string);
         var results = get_search_results(search_string);
         $("#search_results_list").html("");
+        $(".item_link").unbind();
         for(var i = 0; i < results.length; i++) {
-          $("#search_results_list").append("<li><a href='javascript:void(0)'>" + results[i] + "<\/a><\/li>");
+          var item_link = "<a href='javascript:void(0)' "
+                           + "class='item_link' "
+                           + "termtitle='" + results[i] + "'"
+                           + ">" + results[i] + "<\/a>";
+          $("#search_results_list").append("<li>" + item_link + "<\/li>");
         }
-      }
+        $(".item_link").click(function() {
+          load_note($(this).attr("termtitle"));
+          toggle(true);
+        });
+      };
       
       var show_note = function() {
         $("#current_note").show();
-      }
+      };
       
       var hide_note = function() {
         $("#current_note").hide();
-      }
+      };
       
       var hide_results = function() {
         $("#search_results").hide();
         $("#cancel").hide();
         $("#enter").val("search");
         $("#enter").css("color", "#aaa");
-      }
+      };
       
       var toggle = function(note) {
         if(note) {
@@ -175,7 +164,7 @@
           hide_note();
           show_results();
         }
-      }
+      };
       
       $("#enter").focus(function() {
         if($(this).val() == "search") {
@@ -183,19 +172,25 @@
           $(this).css("color", "#333");
         }
       });
+      
       $("#enter").blur(function() {
         if($(this).val() == "") {
           toggle(true);
         }
       });
+      
       $("#enter").keyup(function() {
         toggle(false);
       });
+      
       $("#cancel").click(function() {
         toggle(true);
       });
       
-      hide_results();
+      $("#url").click(function() {
+        //TODO
+      });
+      toggle(false);
     </script>
   </body>
 </html>

@@ -4,6 +4,9 @@
       body {
         overflow: hidden;
         padding: 0px;
+        background-color: #444;
+        color: #fff;
+        font-family: "Lucida Grande", "Helvetica Neue", Helvetica, Arial, sans-serif;
       }
       
       .spacer {
@@ -24,10 +27,6 @@
         margin-top: 10px;
         width: 400px;
         min-height: 800px;
-        background-color: #444;
-        color: #fff;
-        font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-        padding: 10px;
       }
       
       #sidebar a {
@@ -60,21 +59,56 @@
         width: 100%;
         height: 500px;
       }
+      
+      .search_list_item {
+        background-color: #666;
+        padding: 6px;
+        border-bottom: 1px solid #888;
+      }
+      
+      .search_list_item:hover {
+        background-color: #777;
+      }
+      
+      .item_icon {
+        float: left;
+        width: 60px;
+        margin-right: 6px;
+      }
+      
+      .item_content {
+        float: left;
+        width: 320px;
+      }
+      
+      .item_title {
+        font-weight: bold;
+        font-size: 18px;
+      }
+      
+      .item_description {
+        font-weight: light;
+        color: #ddd;
+      }
+      
+      .tag {
+        color: red;
+      }
     </style>
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script type="text/javascript" src="http://twitter.github.com/bootstrap/assets/js/bootstrap-typeahead.js"></script>
   </head>
   <body>
     <div id="sidebar">
       <div id="search_container">
-        <input type="text" id="enter" value="search"/>
+        <input type="text" id="enter" value="search" data-provide="typeahead"/>
         <a href="javascript:void(0)" id="cancel">cancel</a>
       </div>
       <div id="search_results">
         <br/>
         Search string: <span id="search_string"></span>
         <br/>
-        <ul id="search_results_list">
-        </ul>
+        <div id="search_results_list"></div>
       </div>
       <div id="current_note">
         URL: <a id="url" href="http://google.com">TODO</a>
@@ -86,23 +120,51 @@
       </div>
     </div>
     <script type="text/javascript">
-      var note_titles = ["item1", "item4", "item8"];
+      var note_titles = ["item1", "item4", "item8", "greatness"];
+      var tags = ["asdf", "ravi", "keegan"];
+      var note_tags = [[0, 1], [0], [1, 2], [1, 2]];
       var notes = [];
       
       var init = function() {
         for(var i = 0; i < note_titles.length; i++) {
-          notes[note_titles[i]] = note_titles[i] + " aowiejfiawefj " + Math.random();
+          notes[note_titles[i]] = "random: " + Math.random();
         }
       };
       init();
       
-      var get_search_results = function(search_string) {
+      var parse_tags = function(search_string) {
+        var tokens = search_string.split(" ");
+        var results = {};
+        results.tag_list = [];
+        results.query = "";
+        for(var i = 0; i < tokens.length; i++) {
+          var tag_index = tags.indexOf(tokens[i]);
+          if(tag_index >= 0) {
+            results.tag_list.push(tag_index);
+          }
+          else {
+            results.query += tokens[i] + " ";
+          }
+        }
+        results.query = $.trim(results.query);
+        return results;
+      }
+      
+      var get_search_results = function(search_tags, search_string) {
         var return_list = [];
-        if(search_string == "") {
+        if(search_string == "" && search_tags.length == 0) {
           return return_list;
         }
-        for(var i = 0; i < note_titles.length; i++) {
-          if(note_titles[i].indexOf(search_string) >= 0) {
+        for(var i = 0; i < note_tags.length; i++) {
+          var tags_match = true;
+          for(var j = 0; j < search_tags.length; j++) {
+            if(note_tags[i].indexOf(search_tags[j]) < 0) {
+              tags_match = false;
+              break;
+            }
+          }
+          if(tags_match && (search_string.length == 0 || 
+              note_titles[i].indexOf(search_string) >= 0)) {
             return_list.push(note_titles[i]);
           }
         }
@@ -112,7 +174,6 @@
       var load_note = function(keyword) {
         $("#note_title").html(keyword);
         $("#note_content").val(notes[keyword]);
-        //$("#note_content").val("loaded");
       };
       
       var show_results = function() {
@@ -121,17 +182,33 @@
         
         var search_string = $("#enter").val();
         $("#search_string").html(search_string);
-        var results = get_search_results(search_string);
+        var tag_parse = parse_tags(search_string);
+        var results = get_search_results(tag_parse.tag_list, tag_parse.query);
         $("#search_results_list").html("");
-        $(".item_link").unbind();
+        $(".search_list_item").unbind();
         for(var i = 0; i < results.length; i++) {
+          var img_src = "http://placekitten.com/50/50";
+          var item_title = results[i];
+          var item_desc = notes[results[i]];
+          if(item_desc.length > 50) {
+            item_desc = item_desc.substring(0, 50) + "...";
+          }
+          var item_termtitle = results[i];
+
+          var item_html = '<div class="search_list_item" termtitle="' + item_termtitle + '">'
+          item_html +=  '<img class="item_icon" src="' + img_src + '" \/>';
+          item_html += '<div class="item_content"><div class="item_title">' + item_title + '<\/div>';
+          item_html += '<div class="item_description">' + item_desc + '<\/div>';
+          item_html += '<\/div><div style="clear:both"><\/div><\/div>';
+/*
           var item_link = "<a href='javascript:void(0)' "
                            + "class='item_link' "
                            + "termtitle='" + results[i] + "'"
                            + ">" + results[i] + "<\/a>";
-          $("#search_results_list").append("<li>" + item_link + "<\/li>");
+*/
+          $("#search_results_list").append(item_html);
         }
-        $(".item_link").click(function() {
+        $(".search_list_item").click(function() {
           load_note($(this).attr("termtitle"));
           toggle(true);
         });
@@ -180,6 +257,11 @@
         toggle(false);
       });
       
+      $("#note_content").keyup(function() {
+        var id = $("#note_title").html();
+        notes[id] = $(this).val();
+      });
+      
       $("#cancel").click(function() {
         toggle(true);
       });
@@ -187,7 +269,12 @@
       $("#url").click(function() {
         //TODO
       });
-      hide_results();
+      
+      $("#enter").typeahead({
+        source: tags,
+        items: 4
+      });
+      toggle(true);
     </script>
   </body>
 </html>
