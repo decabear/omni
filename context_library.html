@@ -119,15 +119,16 @@
           </div>
           <div id="context_container" style="display:none">
             <h3 id="context_title">title</h3>
-            <div id="context_date"></div>
+            Created <span id="context_date"></span>&nbsp;&nbsp;
             <a id="close_context" href="javascript:void(0)" class="btn" >close this context</a>
             <br/>
             <hr/>
             <div id="context_left">
-              Notes:
+              <strong>Notes:</strong>
               <div id="context_notes">
               </div>
-              History:
+              <br/>
+              <strong>History:</strong>
               <div id="context_history">
               </div>
             </div>
@@ -149,13 +150,16 @@
         if(level == 0) {
           $("#context_container").hide();
           $(".hero-unit h1").html("Search for a context: ");
+          $(".hero-unit").show();
           $("#enter").val("");
+          $("#enter").focus();
           render_results("");
           $(".exit_context").unbind();
         }
         else if(level == 1) {
+          $(".hero-unit").hide();
           $("#context_container").show();
-          $(".hero-unit h1").html("Search for a note or URL: ");
+          $(".hero-unit h1").html("");
           $(".exit_context").click(function() {
             switch_level(0);
           });
@@ -229,6 +233,7 @@
         }
         $(".context_result").click(function() {
           switch_level(1);
+          //TODO: set seleced browser-wide context to this context
           var i = parseInt($(this).attr("cindex"));
           $("#context_title").html(contexts[i].title);
           $("#context_container").attr("cindex", i);
@@ -245,7 +250,7 @@
           }
           for(var j = 0; j < numUrls; j++) {
             var item_html = "<div class='context_history_link'>";
-            item_html += "<a href='" + contexts[i].history[j].url + "'>"
+            item_html += "<a target='_blank' href='" + contexts[i].history[j].url + "'>"
             item_html += contexts[i].history[j].title;
             item_html += "<\/a><\/div>";
             $("#context_history").append(item_html);
@@ -253,6 +258,7 @@
           $(".context_note_link").click(function() {
             var note_index = parseInt($(this).attr("noteindex"));
             var c_index = parseInt($("#context_container").attr("cindex"));
+            $("#context_note").attr("noteindex", note_index);
             var msg = contexts[c_index].notes[note_index].text;
             $("#context_note").val(msg);
             $("#context_right").show();
@@ -264,6 +270,15 @@
         if(level == 0) {
           render_results($(this).val());
         }
+        else if(level == 1) {
+          
+        }
+      });
+      
+      $("#context_note").keyup(function() {
+        var note_index = parseInt($(this).attr("noteindex"));
+        var c_index = parseInt($("#context_container").attr("cindex"));
+        contexts[c_index].notes[note_index].text = $(this).val();
       });
       
       $("#close_context").click(function() {
