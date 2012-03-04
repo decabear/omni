@@ -115,11 +115,11 @@
       </div>
       <div class="row">
         <div class="span16">
-          <div id="results">
+          <div class="results">
           </div>
           <div id="context_container" style="display:none">
             <h3 id="context_title">title</h3>
-            Created <span id="context_date"></span>&nbsp;&nbsp;
+            <div style="display:none">Created <span id="context_date"></span>&nbsp;&nbsp;</div>
             <a id="close_context" href="javascript:void(0)" class="btn" >close this context</a>
             <br/>
             <hr/>
@@ -127,6 +127,7 @@
               <strong>Notes:</strong>
               <div id="context_notes">
               </div>
+              New Note: <input type="text" name="newnote" id="newnote" style="width:150px"/>
               <br/>
               <strong>History:</strong>
               <div id="context_history">
@@ -142,10 +143,11 @@
     </div>
     <script type="text/javascript">
       var level = 0;
+      var context = {};
       
       var switch_level = function(new_lvl) {
         level = new_lvl;
-        $("#results").html("");
+        $(".results").html("");
         if(level == 0) {
           $("#context_container").hide();
           $(".hero-unit h1").html("Search for a context: ");
@@ -210,63 +212,67 @@
       };
       
       var render_results = function(query) {
-        $("#results").html("");
+        $(".results").html("");
         var contexts = omni.Contexts.query(query);
         $(".context_result").unbind();
         for(var i = 0; i < contexts.length; i++) {
           var numNotes = contexts[i].notes.length;
           var numUrls = 0; //contexts[i].history.length; //TODO
           var img_src = "http://placekitten.com/60/60";
-          var item_html = "<div class='context_result' cindex='" + i + "'>";
+          var item_html = "<div class='context_result' ctitle='" + contexts[i].title + "'>";
           item_html +=  '<img class="item_icon" src="' + img_src + '" \/>';
           item_html +=  '<div class="content_result_right">';
           item_html += "<div class='context_result_title'>" + contexts[i].title + "<\/div>";
           item_html += "<div class='context_result_text'>"
-                         + contexts[i].date_modified + "<br>" 
+                        // + contexts[i].date_modified + "<br>"  //TODO
                          + numNotes + " notes, "
                          + numUrls + " history items"
                          + "<\/div>";
           item_html += "<\/div>";
           item_html += '<div style="clear:both"><\/div>';
           item_html += "<\/div>";
-          $("#results").append(item_html);
+          $(".results").append(item_html);
         }
         $(".context_result").click(function() {
           switch_level(1);
           //TODO: set seleced browser-wide context to this context
-          var i = parseInt($(this).attr("cindex"));
-          $("#context_title").html(contexts[i].title);
-          $("#context_container").attr("cindex", i);
+          var ctitle = $(this).attr("ctitle");
+          var context = omni.Contexts.get(ctitle);
+          $("#context_title").html(context.title);
+          $("#context_container").attr("ctitle", context.title);
           $("#enter").val("");
-          $("#context_date").html(contexts[i].date_modified);
-          var numNotes = contexts[i].notes.length;
+          //$("#context_date").html(context.date_modified);
+          var numNotes = context.notes.length;
           var numUrls = 0; //TODO contexts[i].history.length;
           for(var j = 0; j < numNotes; j++) {
             var item_html = "<div class='context_note_link_container'>";
             item_html += "<a href='javascript:void(0)' class='context_note_link' noteindex='" + j + "'>"
-            item_html += contexts[i].notes[j].title;
+            item_html += context.notes[j].title;
             item_html += "<\/a><\/div>";
             $("#context_notes").append(item_html);
           }
           for(var j = 0; j < numUrls; j++) {
             var item_html = "<div class='context_history_link'>";
             item_html += "<a target='_blank' href='" + contexts[i].history[j].url + "'>"
-            item_html += contexts[i].history[j].title;
+            item_html += context.urls[j].title;
             item_html += "<\/a><\/div>";
             $("#context_history").append(item_html);
           }
           $(".context_note_link").click(function() {
             var note_index = parseInt($(this).attr("noteindex"));
-            var c_index = parseInt($("#context_container").attr("cindex"));
+            var ctitle = $("#context_container").attr("ctitle");
             $("#context_note").attr("noteindex", note_index);
-            var msg = contexts[c_index].notes[note_index].text;
+            var msg = context.notes[note_index].text;
             $("#context_note").val(msg);
             $("#context_right").show();
           });
         });
       };
       
-      $("#enter").keyup(function() {
+      $("#enter").keyup(function(e) {
+        if(e.keyCode == 13) {
+          omni.Contexts.get($(this).val());
+        }
         if(level == 0) {
           render_results($(this).val());
         }
@@ -275,10 +281,40 @@
         }
       });
       
+      $("#newnote").keyup(function(e) {
+        if(e.keyCode == 13) {
+          var ctitle = $("#context_container").attr("ctitle");
+          var context = omni.Contexts.get(ctitle);
+          var note_title = $(this).val();
+          var new_index = context.notes.push({title: note_title, text: ""}) - 1;
+          $(this).val("");
+          var item_html = "<div class='context_note_link_container'>";
+          item_html += "<a href='javascript:void(0)' class='context_note_link' noteindex='" + new_index + "'>"
+          item_html += note_title;
+          item_html += "<\/a><\/div>";
+          $("#context_notes").append(item_html);    
+          $("#context_right").show();      
+          $("#context_note").val("");
+          $("#context_note").attr("noteindex", new_index);
+          omni.Contexts.save();
+          $(".context_note_link").unbind();
+          $(".context_note_link").click(function() {
+            var note_index = parseInt($(this).attr("noteindex"));
+            var ctitle = $("#context_container").attr("ctitle");
+            $("#context_note").attr("noteindex", note_index);
+            var msg = context.notes[note_index].text;
+            $("#context_note").val(msg);
+            $("#context_right").show();
+          });
+        }
+      });
+      
       $("#context_note").keyup(function() {
         var note_index = parseInt($(this).attr("noteindex"));
-        var c_index = parseInt($("#context_container").attr("cindex"));
-        contexts[c_index].notes[note_index].text = $(this).val();
+        var ctitle = $("#context_container").attr("ctitle");
+        var context = omni.Contexts.get(ctitle);
+        context.notes[note_index].text = $(this).val();
+        omni.Contexts.save();
       });
       
       $("#close_context").click(function() {
